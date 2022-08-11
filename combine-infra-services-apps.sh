@@ -23,7 +23,7 @@
 # Fork it!
 
 # Replace `[...]` with the GitHub organization or the username
-export GH_ORG=[...]
+export GH_ORG=freyrfinnboga
 
 git clone https://github.com/$GH_ORG/combine-infra-services-apps.git
 
