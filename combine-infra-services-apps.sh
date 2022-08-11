@@ -36,7 +36,9 @@ cd combine-infra-services-apps
 export KUBECONFIG=$PWD/kubeconfig.yaml
 
 # Feel free to use any other Kubernetes cluster
-kind create cluster --config kind.yaml
+sudo kind create cluster --config kind.yaml
+
+sudo kind get kubeconfig > /home/freyr/.kube/config
 
 # NGINX Ingress installation might differ for your k8s provider
 kubectl apply \
@@ -101,6 +103,8 @@ kubectl --namespace crossplane-system \
     create secret generic gcp-creds \
     --from-file key=./creds.json
 
+curl -sL https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh | sh
+
 kubectl crossplane install provider \
     crossplane/provider-gcp:v0.15.0
 
@@ -155,11 +159,14 @@ git commit -m "Initial commit"
 git push
 
 # Watch https://youtu.be/Twtbg6LFnAg if you are not familiar with Kustomize
+curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+sudo install -o root -g root -m 0755 kustomize /usr/local/bin/kustomize
 
 kustomize build \
     argo-cd/overlays/production \
     | kubectl apply --filename -
 
+# virkaði ekki
 kubectl --namespace argocd \
     rollout status \
     deployment argocd-server
@@ -169,6 +176,10 @@ export PASS=$(kubectl \
     get secret argocd-initial-admin-secret \
     --output jsonpath="{.data.password}" \
     | base64 --decode)
+
+sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+
+sudo chmod +x /usr/local/bin/argocd
 
 argocd login \
     --insecure \
